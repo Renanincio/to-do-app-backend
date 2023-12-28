@@ -1,51 +1,58 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Put,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards
 } from '@nestjs/common';
-import { TaskCrudService } from './task-crud.service';
+import { AuthGuard } from '@nestjs/passport';
+import { IsPublic } from 'src/auth/decorators/is-public.decorator';
 import { TaskDTO } from './dto/Task.DTO';
+import { TaskCrudService } from './task-crud.service';
 
+@IsPublic()
 @Controller('task')
 export class TaskCrudController {
-  constructor(private readonly taskCrudService: TaskCrudService) {}
-
+  constructor(
+    private readonly taskCrudService: TaskCrudService,
+    ) {}
+  
   @Post()
-  async create(@Body() createTaskCrudDto: TaskDTO) {
-    return await this.taskCrudService.create(createTaskCrudDto);
+  async create(@Body() createTaskCrudDto: TaskDTO, @Query('email') email: string) {
+    return await this.taskCrudService.create(createTaskCrudDto, email);
   }
 
   @Get()
-  async findAll() {
-    return await this.taskCrudService.findAll();
+  async findAll(@Query('email') email: string) {
+    return await this.taskCrudService.findAll(email);
   }
 
   @Get('favorites')
-  async findAllFavorites() {
-    return await this.taskCrudService.findAllFavorites();
+  async findAllFavorites(@Query('email') email: string) {
+    return await this.taskCrudService.findAllFavorites(email);
   }
 
   @Get('completed')
-  async findAllCompleted() {
-    return await this.taskCrudService.findAllCompleted();
+  async findAllCompleted(@Query('email') email: string) {
+    return await this.taskCrudService.findAllCompleted(email);
   }
-
+  
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return await this.taskCrudService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.taskCrudService.findOne(id);
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateTaskCrudDto: TaskDTO) {
-    return await this.taskCrudService.update(+id, updateTaskCrudDto);
+  async update(@Param('id') id: string, @Body() updateTaskCrudDto: TaskDTO) {
+    return await this.taskCrudService.update(id, updateTaskCrudDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    return await this.taskCrudService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.taskCrudService.remove(id);
   }
 }

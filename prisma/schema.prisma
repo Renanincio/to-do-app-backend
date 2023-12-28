@@ -6,17 +6,30 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Task {
-  id          Int     @id @unique @default(autoincrement())
+  id          String  @id @default(cuid())
+  task_code   String  @default(uuid())
   title       String
   description String
   date        String
   completed   Boolean @default(false)
   favorite    Boolean @default(false)
+  User        User    @relation(fields: [userEmail], references: [email])
+  userEmail   String
 
   @@map("task")
+}
+
+model User {
+  id String @id @unique @default(cuid())
+
+  email    String @unique
+  password String
+
+  name String
+  Task Task[]
 }
